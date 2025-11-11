@@ -17,10 +17,10 @@ echo   Ausgabeordner: %OUTDIR%
 echo ============================================
 echo.
 
-REM %PYTHON_EXE% "%SCRIPT_PATH%" --payee "Agrisano Krankenkasse AG" --outdir %OUTDIR%
-REM %PYTHON_EXE% "%SCRIPT_PATH%" --payee "Goutoulli Tyler Santiago M." --outdir %OUTDIR%
-REM %PYTHON_EXE% "%SCRIPT_PATH%" --payee "Ost - Ostschweizer Fachhochschule" --outdir %OUTDIR%
-REM %PYTHON_EXE% "%SCRIPT_PATH%" --payee "DEP Datamanagement GmbH" --outdir %OUTDIR%
+%PYTHON_EXE% "%SCRIPT_PATH%" --payee "Agrisano Krankenkasse AG" --outdir %OUTDIR%
+%PYTHON_EXE% "%SCRIPT_PATH%" --payee "Goutoulli Tyler Santiago M." --outdir %OUTDIR%
+%PYTHON_EXE% "%SCRIPT_PATH%" --payee "Ost - Ostschweizer Fachhochschule" --outdir %OUTDIR%
+%PYTHON_EXE% "%SCRIPT_PATH%" --payee "DEP Datamanagement GmbH" --outdir %OUTDIR%
 %PYTHON_EXE% "%SCRIPT_PATH%" --payee "BVK Personalvorsorge des Kantons" --outdir %OUTDIR%
 
 echo.
