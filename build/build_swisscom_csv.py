@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import csv
+from pathlib import Path
+
+from settings import SWISSCOM_DIR, SWISSCOM_CSV
+from providers.swisscom_provider import SwisscomProvider, extract_text_from_pdf
+
+
+def main():
+    provider = SwisscomProvider()
+
+    pdf_dir: Path = SWISSCOM_DIR
+    csv_path: Path = SWISSCOM_CSV
+
+    if not pdf_dir.exists():
+        print(f"[HINWEIS] Swisscom-Ordner existiert nicht: {pdf_dir}")
+        return
+
+    pdf_files = sorted(p for p in pdf_dir.glob("*.pdf") if p.is_file())
+
+    print("========== Swisscom CSV Builder ==========")
+    print(f"PDF-Ordner: {pdf_dir}")
+    print(f"CSV-Ziel:   {csv_path}")
+    print(f"Gefundene PDFs: {len(pdf_files)}")
+
+    # CSV neu schreiben (überschreiben, nicht anhängen)
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    with csv_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f, delimiter=";")
+        # Kopfzeile aus dem Provider
+        writer.writerow(provider.csv_header)
+
+        written = 0
+        skipped_not_matching = 0
+        errors = 0
+
+        for pdf_path in pdf_files:
+            try:
+                text = extract_text_from_pdf(pdf_path)
+            except Exception as e:
+                print(f"[WARNUNG] Fehler beim Lesen von '{pdf_path.name}': {e}")
+                errors += 1
+                continue
+
+            if not provider.matches(text):
+                # Im Ordner liegen evtl. PDFs, die keine Swisscom-Rechnungen sind
+                skipped_not_matching += 1
+                continue
+
+            data = provider.parse_invoice(text, pdf_path.name)
+
+            # Erwartete Keys: date, raw_amount, amount, file
+            date_str = data.get("date", "")
+            amount_num = data.get("amount", None)
+            filename = data.get("file", pdf_path.name)
+
+            if amount_num is None:
+                # Sicherstellen, dass wir etwas Sinnvolles schreiben
+                amount_str_num = ""
+            else:
+                # Einheitlich mit 2 Nachkommastellen
+                amount_str_num = f"{float(amount_num):.2f}"
+
+            # Reihenfolge gemäss provider.csv_header:
+            # ["Rechnungsdatum", "Betrag_roh", "Betrag_num", "Datei"]
+            writer.writerow([date_str, amount_str_num, filename])
+            written += 1
+
+    print("\n========== Zusammenfassung ==========")
+    print(f"Verarbeitete PDFs insgesamt:      {len(pdf_files)}")
+    print(f"Erkannte Swisscom-Rechnungen:    {written + skipped_not_matching}")
+    print(f" -> Davon in CSV geschrieben:    {written}")
+    print(f" -> Nicht passend (kein Match):  {skipped_not_matching}")
+    print(f"Lesefehler:                      {errors}")
+    print(f"CSV neu erzeugt: {csv_path}")
+
+
+if __name__ == "__main__":
+    main()

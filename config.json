@@ -1,0 +1,12 @@
+{
+    "BASE_DIR": "D:/Projekte_OneDrive/OneDrive/Privat/Zur_Ablage",
+
+    "FOLDERS": {
+        "swisscom": "swisscom",
+        "swisscard": "swisscard",
+        "szkb_privatkonto": "szkb_privatkonto",
+        "strom": "strom"
+    },
+
+    "PYTHON_EXE": "C:/Python314/python.exe"
+}
